@@ -5,16 +5,18 @@
   --intro-bg:linear-gradient(180deg, rgba(63,176,255,0.08), rgba(124,77,255,0.04));
   --card-bg:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
   --block-header-bg:linear-gradient(90deg, rgba(63,176,255,0.12), rgba(124,77,255,0.06));
-  --radius:12px; --max-width:1150px; font-family:Inter, system-ui, Arial; font-size:15px; color:var(--text);
+  --radius:12px; --max-width:1150px; font-family:Inter, system-ui, Arial; font-size:18px; color:var(--text);
 }
 
 /* base layout */
 *{box-sizing:border-box}
 html,body{height:100%;margin:0}
-body{
-  background:
-    radial-gradient(1200px 600px at 10% 10%, rgba(124,77,255,0.04), transparent 12%),
-    linear-gradient(180deg,var(--bg-1),var(--bg-2));
+body {
+  background-color: #071029;
+  color: #e6eef8;
+  font-family: Inter, system-ui, Arial, sans-serif;
+  margin: 0;
+  padding: 0;
   display:flex;align-items:flex-start;justify-content:center;padding:28px 16px;
   -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
 }
@@ -32,7 +34,7 @@ body{
 }
 
 /* header text */
-.header-text h1{margin:0;font-size:1.2rem}
+.header-text h1{margin:0;font-size:1.8rem}
 .lead{margin:4px 0 0;color:var(--muted);font-size:0.95rem}
 
 /* main card */
@@ -91,7 +93,7 @@ body{
 
 /* responsive: adjust brand behavior on small screens so it doesn't overlap */
 @media (max-width:760px){
-  .container{grid-template-columns:1fr; padding:18px;}
+  .container{grid-template-columns:1fr; padding:0px;}
   .header{flex-direction:row;align-items:center}
   .brand{width:56px;height:56px;border-radius:10px;flex:0 0 56px}
   .form-card{margin-top:0}
