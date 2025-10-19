@@ -17,7 +17,7 @@ body {
   font-family: Inter, system-ui, Arial, sans-serif;
   margin: 0;
   padding: 0;
-  display:flex;align-items:flex-start;justify-content:center;padding:28px 16px;
+  display:flex;align-items:flex-start;justify-content:center;padding:28px 10px;
   -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
 }
 
@@ -38,7 +38,7 @@ body {
 .lead{margin:4px 0 0;color:var(--muted);font-size:0.95rem}
 
 /* main card */
-.form-card{background:var(--card-bg);border-radius:var(--radius);padding:14px;border:1px solid rgba(255,255,255,0.03);box-shadow:0 10px 30px rgba(2,6,23,0.45)}
+.form-card{background:var(--card-bg);border-radius:var(--radius);padding:0px;border:1px solid rgba(255,255,255,0.03);box-shadow:0 10px 30px rgba(2,6,23,0.45)}
 .block{margin-bottom:12px}
 .block.intro{background:var(--intro-bg);padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.03)}
 .block.intro h2{margin:0;color:#eaf6ff}

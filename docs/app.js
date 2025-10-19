@@ -1,4 +1,4 @@
-// app.js — versão adaptada para o questionário completo enviado
+// app.js — versão adaptada sem coluna de "action-chip" (Prioridade chips removidos)
 document.addEventListener('DOMContentLoaded', function () {
   try {
     var container = document.getElementById('questionsContainer');
@@ -287,16 +287,24 @@ document.addEventListener('DOMContentLoaded', function () {
           '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 2l10 18H2L12 2z" fill="#f59e0b"/></svg>' :
           '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 2l10 18H2L12 2z" fill="#ff6b6b"/></svg>';
 
-        var chipClass = it.val === 2 ? 'ok' : it.val === 1 ? 'warn' : 'danger';
-        var chipLabel = it.val === 2 ? 'OK' : it.val === 1 ? 'Prioridade Média' : 'Prioridade Alta';
-
+        // Build markup WITHOUT the action-chip column
         if (it.val === 2) {
-          elWrap.innerHTML = '<div class="icon-wrap">' + icon + '</div><div><div class="title">' + it.label + ' <span class="status">— OK</span></div></div><div class="action-chip ' + chipClass + '">' + chipLabel + '</div>';
+          // OK items: icon + title/status (no chip)
+          elWrap.innerHTML = '<div class="icon-wrap">' + icon + '</div>' +
+            '<div>' +
+              '<div class="title">' + it.label + ' <span class="status">— OK</span></div>' +
+            '</div>';
           priOk.appendChild(elWrap);
         } else {
+          // Parciais / Não: icon + title + suggestion + explain (no chip)
           var sug = suggestions[it.key] ? suggestions[it.key].sug : 'Recomende uma ação prática.';
           var why = suggestions[it.key] ? suggestions[it.key].why : '';
-          elWrap.innerHTML = '<div class="icon-wrap">' + icon + '</div><div><div class="title">' + it.label + ' <span class="status">— ' + (it.val === 1 ? 'Parcial' : 'Não') + '</span></div><div class="suggestion"><strong>Sugestão:</strong> ' + (sug || '') + '</div><div class="explain"><strong>Por que:</strong> ' + (why || '') + '</div></div><div class="action-chip ' + chipClass + '">' + chipLabel + '</div>';
+          elWrap.innerHTML = '<div class="icon-wrap">' + icon + '</div>' +
+            '<div>' +
+              '<div class="title">' + it.label + ' <span class="status">— ' + (it.val === 1 ? 'Parcial' : 'Não') + '</span></div>' +
+              '<div class="suggestion"><strong>Sugestão:</strong> ' + (sug || '') + '</div>' +
+              '<div class="explain"><strong>Por que:</strong> ' + (why || '') + '</div>' +
+            '</div>';
           if (it.val === 0) priHigh.appendChild(elWrap);
           else priMed.appendChild(elWrap);
         }
