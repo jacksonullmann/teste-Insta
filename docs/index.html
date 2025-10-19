@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Instagram Workbook</title>
+
+  <link rel="stylesheet" href="styles.css" />
+
+  <script defer src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script defer src="app.js"></script>
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <div class="brand" aria-hidden="true">IG</div>
+      <div class="header-text">
+        <h1>Questionário Estratégico Instagram</h1>
+        <p class="lead">Avalie sua presença no Instagram. Para cada item escolha: Não / Parcial / Sim. Toque em ? para ver a explicação.</p>
+      </div>
+    </header>
+
+    <main class="form-card" role="main">
+      <section class="block intro">
+        <h2>Introdução</h2>
+        <p class="small">O Instagram é um canal estratégico. Cada post, Story, Reel ou destaque deve apoiar um objetivo mensurável. Responda Não / Parcial / Sim.</p>
+      </section>
+
+      <section class="block questions">
+        <div id="questionsContainer"></div>
+      </section>
+    </main>
+
+    <aside id="result" class="result-card" aria-live="polite" tabindex="-1">
+      <h2>Resultado & Prioridades</h2>
+
+      <div class="score-row">
+        <div id="score" class="score">--</div>
+        <div>
+          <div id="tier" class="tier">Aguardando</div>
+          <div id="summary" class="summary small"></div>
+        </div>
+      </div>
+
+      <div class="hr"></div>
+
+      <div id="priorities">
+        <h3 class="small">Prioridade: Alta (Não)</h3>
+        <div id="priorityHigh" class="reco-list small"></div>
+
+        <h3 class="small" style="margin-top:12px">Prioridade: Média (Parcial)</h3>
+        <div id="priorityMed" class="reco-list small"></div>
+
+        <h3 class="small" style="margin-top:12px">O que está OK</h3>
+        <div id="priorityOk" class="reco-list small"></div>
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="actions">
+        <button type="button" id="calc" class="btn primary">Gerar diagnóstico</button>
+        <button type="button" id="downloadPdf" class="btn" disabled>Gerar PDF</button>
+        <button type="button" id="reset" class="btn ghost">Limpar</button>
+      </div>
+
+      <div class="footer small">Use este questionário trimestralmente para monitorar a evolução da sua estratégia.</div>
+    </aside>
+  </div>
+</body>
+</html>
