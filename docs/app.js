@@ -1,69 +1,135 @@
-// app.js — versão final ajustada: blocos em azul, dicas ?, opções abaixo, relatório funcionando
+// app.js — versão adaptada para o questionário completo enviado
 document.addEventListener('DOMContentLoaded', function () {
   try {
-    console.log('app.js carregado', new Date().toISOString());
-
     var container = document.getElementById('questionsContainer');
     if (!container) throw new Error('#questionsContainer não encontrado');
 
     var blocks = [
-      { letter:'A', title:'Perfil e configuração', items: [
-        { key:'perfil_conta', label:'Conta adequada', explain:'Conta comercial/criador habilita insights, promoções e APIs.' },
-        { key:'nome_username', label:'Nome e username', explain:'Nome legível e username consistente ajudam descoberta.' },
-        { key:'foto_perfil', label:'Foto de perfil', explain:'Imagem legível em tamanho pequeno e alinhada à marca.' },
-        { key:'bio', label:'Bio clara', explain:'Proposta de valor curta + CTA.' },
-        { key:'link_bio', label:'Link na bio', explain:'Link aponta para página relevante e atualizada.' },
-        { key:'contato_info', label:'Informações de contato', explain:'Telefone, e-mail e categoria atualizados.' },
-        { key:'integracao_vendas', label:'Integração de vendas', explain:'Instagram Shopping/catálogos configurados quando aplicável.' }
-      ]},
-      { letter:'B', title:'Estratégia e objetivos', items: [
-        { key:'objetivos_def', label:'Objetivos definidos', explain:'Metas SMART ligadas ao funil (alcance, tráfego, leads, vendas).' },
-        { key:'kpis_est', label:'KPIs estabelecidos', explain:'Métricas vinculadas aos objetivos e mensuráveis.' },
-        { key:'publico_doc', label:'Público documentado', explain:'Personas com horários, interesses e dores.' },
-        { key:'linha_editorial', label:'Linha editorial', explain:'Temas e formatos definidos para suportar objetivos.' }
-      ]},
-      { letter:'C', title:'Feed', items: [
-        { key:'coerencia_visual', label:'Coerência visual', explain:'Paleta, filtros e estilo consistentes no grid.' },
-        { key:'variedade_formatos', label:'Variedade de formatos', explain:'Imagens, carrosséis, infográficos, antes/depois.' },
-        { key:'legendas', label:'Legendas estratégicas', explain:'Gancho, valor, prova, CTA.' },
-        { key:'hashtags', label:'Hashtags otimizadas', explain:'Mistura de nicho e amplas testadas.' },
-        { key:'cta_feed', label:'CTA no feed', explain:'Publicações incentivam salvar, comentar, compartilhar ou visitar link.' }
-      ]},
-      { letter:'D', title:'Reels e vídeos curtos', items: [
-        { key:'freq_reels', label:'Frequência de Reels', explain:'Consistência: 1–2 por semana se possível.' },
-        { key:'gancho_inicial', label:'Gancho inicial', explain:'Abertura impactante nos primeiros 2–3s.' },
-        { key:'valor_reels', label:'Valor claro', explain:'Ensinar, entreter ou inspirar rapidamente.' },
-        { key:'legibilidade_sem_som', label:'Legibilidade sem som', explain:'Legendas e texto embutido.' }
-      ]},
-      { letter:'E', title:'Stories e destaques', items: [
-        { key:'freq_stories', label:'Frequência de Stories', explain:'Stories regulares mantêm presença.' },
-        { key:'interatividade', label:'Interatividade', explain:'Enquetes, perguntas e quizzes aumentam engajamento.' },
-        { key:'uso_links_stories', label:'Uso de links', explain:'Links com UTM e CTA claro.' },
-        { key:'destaques_organizados', label:'Destaques organizados', explain:'Capa padronizada e categorias úteis.' },
-        { key:'destaques_atualizados', label:'Destaques atualizados', explain:'Revise periodicamente.' }
-      ]},
-      { letter:'L', title:'Prioridades imediatas', items: [
-        { key:'prio_bio', label:'Bio e link com CTA', explain:'Corrija bio e link antes de campanhas.' },
-        { key:'prio_reels', label:'Planejar 4 Reels', explain:'Testar hooks e mensurar retenção.' },
-        { key:'prio_stories', label:'Programar Stories interativos', explain:'Gere tráfego e feedback.' },
-        { key:'prio_metrics', label:'Revisar métricas e testes', explain:'Defina 3 testes A/B prioritários.' }
-      ]}
+      {
+        letter: 'A',
+        title: 'Perfil e configuração',
+        items: [
+          { key: 'conta_adequada', label: 'Conta adequada: Conta comercial ou de criador configurada corretamente.', explain: 'Conta comercial ou de criador habilita insights, promoções e ferramentas de conteúdo.' },
+          { key: 'nome_username', label: 'Nome e username: Fácil de buscar; contém palavra-chave quando relevante.', explain: 'Nome e username legíveis e consistentes facilitam descoberta e buscas.' },
+          { key: 'foto_perfil', label: 'Foto de perfil: Legível em tamanho pequeno e alinhada à marca.', explain: 'Imagem reconhecível mesmo em miniatura mantém identidade da marca.' },
+          { key: 'bio_clara', label: 'Bio clara: Proposta de valor e CTA direto (link ou indicação).', explain: 'Bio deve comunicar benefício e direcionar para ação com um CTA claro.' },
+          { key: 'link_na_bio', label: 'Link na bio: Aponta para página relevante e atualizada.', explain: 'Link deve direcionar para destino otimizado e atualizado conforme campanhas.' },
+          { key: 'info_contato', label: 'Informações de contato: Telefone, e-mail e categorias atualizados.', explain: 'Contatos e categoria ajudam usuários a entrar em contato e ao algoritmo entender o negócio.' },
+          { key: 'integracao_vendas', label: 'Integração de vendas: Instagram Shopping ou catálogo configurado quando aplica.', explain: 'Quando aplicável, shopping aumenta conversões diretas na plataforma.' }
+        ]
+      },
+      {
+        letter: 'B',
+        title: 'Estratégia e objetivos',
+        items: [
+          { key: 'objetivos_definidos', label: 'Objetivos definidos: Metas claras (alcance, tráfego, leads, vendas).', explain: 'Metas SMART vinculadas ao funil orientam esforços e mensuração.' },
+          { key: 'kpis_estabelecidos', label: 'KPIs estabelecidos: Métricas vinculadas aos objetivos e mensuráveis.', explain: 'Defina métricas como CAC, CTR, taxa de conversão, alcance e retenção.' },
+          { key: 'publico_documentado', label: 'Público documentado: Personas com horários, interesses e dores registrados.', explain: 'Personas ajudam a criar conteúdo relevante e a definir segmentação.' },
+          { key: 'linha_editorial', label: 'Linha editorial: Temas e formatos pré-definidos que suportam objetivos.', explain: 'Calendário e pilares de conteúdo mantêm coerência e foco.' }
+        ]
+      },
+      {
+        letter: 'C',
+        title: 'Feed',
+        items: [
+          { key: 'coerencia_visual', label: 'Coerência visual: Paleta, filtros e estilo consistentes no grid.', explain: 'Identidade visual consistente reforça reconhecimento da marca.' },
+          { key: 'variedade_formatos', label: 'Variedade de formatos: Uso de imagens, carrosséis, infográficos e antes/depois.', explain: 'Misturar formatos mantém interesse e explora diferentes comportamentos de consumo.' },
+          { key: 'legendas_estrategicas', label: 'Legendas estratégicas: Texto com história/valor e CTA claro.', explain: 'Legendas devem engajar com gancho, entregar valor e terminar com CTA.' },
+          { key: 'hashtags_otimizadas', label: 'Hashtags otimizadas: Mistura de populares e específicas de nicho testadas.', explain: 'Teste combinação de hashtags amplas, nicho e de comunidade.' },
+          { key: 'cta_no_feed', label: 'CTA no feed: Publicações incentivam salvar, comentar, compartilhar ou visitar link.', explain: 'Cada post deve ter um objetivo (salvar, comentar, clicar, etc.).' }
+        ]
+      },
+      {
+        letter: 'D',
+        title: 'Reels e vídeos curtos',
+        items: [
+          { key: 'frequencia_reels', label: 'Frequência de Reels: Publica Reels regularmente com objetivo de alcance.', explain: 'Reels regulares impulsionam alcance; planeje consistência.' },
+          { key: 'gancho_inicial', label: 'Gancho inicial: Vídeos têm abertura impactante nos primeiros segundos.', explain: 'Os primeiros 2–3s determinam retenção e performance do vídeo.' },
+          { key: 'valor_claro_reels', label: 'Valor claro: Reels entregam entretenimento, ensino ou inspiração rapidamente.', explain: 'Reels devem resolver problema, ensinar ou entreter em formato condensado.' },
+          { key: 'legibilidade_sem_som', label: 'Legibilidade sem som: Texto e legendas garantem compreensão sem áudio.', explain: 'Muitos usuários assistem sem som; texto e legendas são essenciais.' }
+        ]
+      },
+      {
+        letter: 'E',
+        title: 'Stories e destaques',
+        items: [
+          { key: 'frequencia_stories', label: 'Frequência de Stories: Stories são publicados com regularidade para manter presença.', explain: 'Stories frequentes mantêm marca no topo da mente e geram sinais de engajamento.' },
+          { key: 'interatividade', label: 'Interatividade: Uso de stickers (enquetes, perguntas, quizzes) para gerar engajamento.', explain: 'Stickers aumentam respostas diretas e geram insights do público.' },
+          { key: 'uso_links', label: 'Uso de links: Swipe Up/Link Sticker direciona tráfego quando aplicável.', explain: 'Links em Stories devem usar UTM e CTA claro para medir tráfego.' },
+          { key: 'destaques_organizados', label: 'Destaques organizados: Capa padronizada e categorizações úteis (Produtos, FAQs, Depoimentos).', explain: 'Destaques bem organizados funcionam como microsite dentro do perfil.' },
+          { key: 'destaques_atualizados', label: 'Atualização dos destaques: Conteúdo dos destaques revisado e relevante.', explain: 'Revise e atualize capas e conteúdo dos destaques regularmente.' }
+        ]
+      },
+      {
+        letter: 'F',
+        title: 'Lives e conteúdo longo',
+        items: [
+          { key: 'lives_programadas', label: 'Lives programadas: Sessões ao vivo promovidas com antecedência e objetivo definido.', explain: 'Lives com promoção prévia e tópico claro atraem mais audiência.' },
+          { key: 'reaproveitamento_lives', label: 'Reaproveitamento: Trechos de lives transformados em Reels, posts e clips.', explain: 'Clips e trechos estendem vida útil e aproveitam conteúdo já produzido.' }
+        ]
+      },
+      {
+        letter: 'G',
+        title: 'Engajamento e comunidade',
+        items: [
+          { key: 'resposta_dms_comentarios', label: 'Resposta a DMs e comentários: Atendimento rápido e padronizado.', explain: 'Respostas rápidas criam confiança e aumentam conversões potenciais.' },
+          { key: 'tom_voz', label: 'Tom de voz consistente: Linguagem alinhada à marca e ao público.', explain: 'Tom consistente fortalece percepção de marca e relacionamento.' },
+          { key: 'incentivo_ugc', label: 'Incentivo a UGC: Estratégia para gerar e repostar conteúdo de seguidores.', explain: 'UGC amplia prova social e gera conteúdo autêntico com baixo custo.' }
+        ]
+      },
+      {
+        letter: 'H',
+        title: 'Publicidade e conversão',
+        items: [
+          { key: 'anuncios_testados', label: 'Anúncios testados: Campanhas com variações de criativo e público em teste.', explain: 'Testes A/B em criativo e audiência otimizam CAC e ROAS.' },
+          { key: 'landing_pages', label: 'Landing pages otimizadas: Páginas móveis preparadas para visitantes do Instagram.', explain: 'Páginas rápidas e adaptadas a mobile melhoram taxa de conversão.' },
+          { key: 'rastreamento_configurado', label: 'Rastreamento configurado: Pixel, UTM e metas para medir visitantes e conversões.', explain: 'Pixel e UTMs são essenciais para atribuição e otimização de campanhas.' }
+        ]
+      },
+      {
+        letter: 'I',
+        title: 'Análise e otimização',
+        items: [
+          { key: 'relatorios_regulares', label: 'Relatórios regulares: Revisões semanais ou mensais com insights acionáveis.', explain: 'Relatórios estruturados permitem identificar o que escalar ou parar.' },
+          { key: 'tests_ab', label: 'Testes A/B realizados: Experimentos documentados em formatos, horários e CTAs.', explain: 'Documente hipóteses, resultados e aplique aprendizados.' },
+          { key: 'acoes_dados', label: 'Ações baseadas em dados: Mudanças na estratégia decorrentes dos aprendizados.', explain: 'Decisões devem ser conduzidas por dados, não por intuição.' }
+        ]
+      },
+      {
+        letter: 'J',
+        title: 'Operações e conformidade',
+        items: [
+          { key: 'calendario_editorial', label: 'Calendário editorial: Planejamento com datas, temas e responsáveis.', explain: 'Calendário evita atropelos e garante consistência de publicação.' },
+          { key: 'workflow_definido', label: 'Workflow definido: Processo de criação, aprovação e publicação documentado.', explain: 'Fluxos claros reduzem erros e agilizam produção.' },
+          { key: 'direitos_licencas', label: 'Direitos e licenças: Uso correto de músicas e imagens com licença.', explain: 'Evita strike, bloqueios e problemas de direitos autorais.' },
+          { key: 'acessibilidade', label: 'Acessibilidade: Uso de legendas e texto alternativo quando possível.', explain: 'Legendas e alt text ampliam alcance e melhoram experiência de usuários.' }
+        ]
+      },
+      {
+        letter: 'K',
+        title: 'Pesquisa de concorrência e benchmark',
+        items: [
+          { key: 'perfils_analizados', label: 'Perfis analisados: Selecionou e documentou 5–10 concorrentes ou referências.', explain: 'Benchmark ajuda a mapear oportunidades e diferenciais.' },
+          { key: 'formato_maior_impacto', label: 'Formato de maior impacto: Identificou se Reels, Stories ou Feed performam melhor no nicho.', explain: 'Saber o formato vencedor orienta alocação de esforço.' },
+          { key: 'horarios_frequencia', label: 'Horários e frequência ideales: Registrou melhores dias/horários para publicar.', explain: 'Otimize horários com base em dados de engajamento.' }
+        ]
+      }
     ];
 
     var suggestions = {
-      perfil_conta: { sug:'Mude para conta comercial/criador em Configurações > Conta.', why:'Permite acessar insights e ferramentas.' },
-      bio: { sug:'Reescreva em 1 linha: benefício + CTA.', why:'Bio clara converte visitantes em ação.' },
-      prio_reels: { sug:'Planeje 4 roteiros com hook ≤3s.', why:'Testar consistência e ganho de alcance.' },
-      prio_metrics: { sug:'Gerar relatório dos últimos 30 dias e definir 3 testes A/B.', why:'Decisões baseadas em dados.' }
+      conta_adequada: { sug: 'Mude para conta comercial/criador em Configurações > Conta.', why: 'Permite acessar insights e ferramentas de promoção.' },
+      bio_clara: { sug: 'Reescreva em 1 linha: benefício + CTA (ex.: Marque sua consulta → Link).', why: 'Bio clara converte visitantes em ação.' },
+      frequencia_reels: { sug: 'Planeje 4 Reels com variação de hooks para 4 semanas.', why: 'Testar consistência e formatos aumenta probabilidade de crescimento.' },
+      rastreamento_configurado: { sug: 'Configure Pixel + UTMs e defina eventos de conversão prioritários.', why: 'Mede e atribui resultados de campanhas com precisão.' },
+      calendario_editorial: { sug: 'Crie um calendário mensal com temas, responsáveis e formatos.', why: 'Facilita execução e aprovação do conteúdo.' }
     };
 
-    // render blocks boxed
+    // render blocks using same class names and structure
     container.innerHTML = '';
     for (var bi = 0; bi < blocks.length; bi += 1) {
       var block = blocks[bi];
       var box = document.createElement('div');
       box.className = 'block-box';
-
       var header = document.createElement('div');
       header.className = 'block-box-header';
       header.innerHTML = '<h3>Bloco ' + block.letter + ' — ' + block.title + '</h3>';
@@ -94,10 +160,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
         var opts = document.createElement('div');
         opts.className = 'options-row';
-        opts.innerHTML =
-          '<button type="button" class="opt" data-value="0" aria-pressed="false">Não</button>' +
-          '<button type="button" class="opt" data-value="1" aria-pressed="false">Parcial</button>' +
-          '<button type="button" class="opt" data-value="2" aria-pressed="false">Sim</button>';
+        opts.innerHTML = '<button type="button" class="opt" data-value="0" aria-pressed="false">Não</button>' +
+                         '<button type="button" class="opt" data-value="1" aria-pressed="false">Parcial</button>' +
+                         '<button type="button" class="opt" data-value="2" aria-pressed="false">Sim</button>';
 
         row.appendChild(top);
         row.appendChild(opts);
@@ -107,7 +172,7 @@ document.addEventListener('DOMContentLoaded', function () {
       container.appendChild(box);
     }
 
-    // delegated click handling + tooltip
+    // delegated handlers and tooltip
     var tooltip = null;
     container.addEventListener('click', function (e) {
       var el = e.target;
@@ -149,7 +214,6 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     });
 
-    // hide tooltip on outside click
     document.addEventListener('click', function (e) {
       if (!tooltip) return;
       var isHint = e.target && e.target.classList && e.target.classList.contains('hint-btn');
@@ -158,15 +222,17 @@ document.addEventListener('DOMContentLoaded', function () {
       tooltip = null;
     }, true);
 
-    // keyboard support delegated
     container.addEventListener('keydown', function (e) {
       var t = e.target;
       if (!t || !t.classList) return;
       if (!t.classList.contains('opt')) return;
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); t.click(); }
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        t.click();
+      }
     });
 
-    // panel refs (grab after DOM elements exist)
+    // panel refs
     var calcBtn = document.getElementById('calc');
     var resetBtn = document.getElementById('reset');
     var pdfBtn = document.getElementById('downloadPdf');
@@ -177,7 +243,6 @@ document.addEventListener('DOMContentLoaded', function () {
     var priMed = document.getElementById('priorityMed');
     var priOk = document.getElementById('priorityOk');
 
-    // compute results
     function compute() {
       var rows = Array.prototype.slice.call(document.querySelectorAll('.q-row'));
       var simCount = 0;
@@ -192,7 +257,6 @@ document.addEventListener('DOMContentLoaded', function () {
       return { simCount: simCount, items: itemsList };
     }
 
-    // render report panel
     function renderPanel() {
       var c = compute();
       var simCount = c.simCount;
@@ -200,28 +264,29 @@ document.addEventListener('DOMContentLoaded', function () {
       var total = document.querySelectorAll('.q-row').length;
       var score = total ? Math.round((simCount / total) * 100) : 0;
 
-      // score and tier
       scoreEl.textContent = score;
       scoreEl.classList.remove('good', 'mid', 'poor');
-      if (score >= 80) scoreEl.classList.add('good'); else if (score >= 50) scoreEl.classList.add('mid'); else scoreEl.classList.add('poor');
+      if (score >= 80) scoreEl.classList.add('good');
+      else if (score >= 50) scoreEl.classList.add('mid');
+      else scoreEl.classList.add('poor');
+
       tierEl.textContent = score >= 80 ? 'Estratégico' : score >= 50 ? 'Bom potencial' : 'Reconstruir base';
       summaryEl.textContent = 'Sim: ' + simCount + ' de ' + total;
 
-      // clear lists
       priHigh.innerHTML = '';
       priMed.innerHTML = '';
       priOk.innerHTML = '';
 
-      // populate lists
       for (var i = 0; i < items.length; i += 1) {
         var it = items[i];
         var elWrap = document.createElement('div');
         elWrap.className = 'reco-item';
-        var icon = it.val === 2
-          ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#22c55e"/><path d="M9 12.5l1.8 1.8L15.5 10" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>'
-          : it.val === 1
-            ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 2l10 18H2L12 2z" fill="#f59e0b"/></svg>'
-            : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 2l10 18H2L12 2z" fill="#ff6b6b"/></svg>';
+        var icon = it.val === 2 ?
+          '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#22c55e"/><path d="M9 12.5l1.8 1.8L15.5 10" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>' :
+          it.val === 1 ?
+          '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 2l10 18H2L12 2z" fill="#f59e0b"/></svg>' :
+          '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 2l10 18H2L12 2z" fill="#ff6b6b"/></svg>';
+
         var chipClass = it.val === 2 ? 'ok' : it.val === 1 ? 'warn' : 'danger';
         var chipLabel = it.val === 2 ? 'OK' : it.val === 1 ? 'Prioridade Média' : 'Prioridade Alta';
 
@@ -231,8 +296,9 @@ document.addEventListener('DOMContentLoaded', function () {
         } else {
           var sug = suggestions[it.key] ? suggestions[it.key].sug : 'Recomende uma ação prática.';
           var why = suggestions[it.key] ? suggestions[it.key].why : '';
-          elWrap.innerHTML = '<div class="icon-wrap">' + icon + '</div><div><div class="title">' + it.label + ' <span class="status">— ' + (it.val === 1 ? 'Parcial' : 'Não') + '</span></div><div class="suggestion"><strong>Sugestão:</strong> ' + sug + '</div><div class="explain"><strong>Por que:</strong> ' + why + '</div></div><div class="action-chip ' + chipClass + '">' + chipLabel + '</div>';
-          if (it.val === 0) priHigh.appendChild(elWrap); else priMed.appendChild(elWrap);
+          elWrap.innerHTML = '<div class="icon-wrap">' + icon + '</div><div><div class="title">' + it.label + ' <span class="status">— ' + (it.val === 1 ? 'Parcial' : 'Não') + '</span></div><div class="suggestion"><strong>Sugestão:</strong> ' + (sug || '') + '</div><div class="explain"><strong>Por que:</strong> ' + (why || '') + '</div></div><div class="action-chip ' + chipClass + '">' + chipLabel + '</div>';
+          if (it.val === 0) priHigh.appendChild(elWrap);
+          else priMed.appendChild(elWrap);
         }
       }
 
@@ -241,33 +307,39 @@ document.addEventListener('DOMContentLoaded', function () {
       if (resultPanel) resultPanel.focus();
     }
 
-    // validate panel buttons exist
     if (!calcBtn || !resetBtn || !pdfBtn) {
       throw new Error('Botões do painel não encontrados. Verifique IDs: calc, reset, downloadPdf.');
     }
 
-    // wire buttons
-    calcBtn.addEventListener('click', function () { renderPanel(); });
+    calcBtn.addEventListener('click', function () {
+      renderPanel();
+    });
 
     resetBtn.addEventListener('click', function () {
       var rows = document.querySelectorAll('.q-row');
       Array.prototype.forEach.call(rows, function (r) {
         r.dataset.value = 0;
         var opts = r.querySelectorAll('.opt');
-        Array.prototype.forEach.call(opts, function (o) { o.classList.remove('selected'); o.setAttribute('aria-pressed', 'false'); });
+        Array.prototype.forEach.call(opts, function (o) {
+          o.classList.remove('selected');
+          o.setAttribute('aria-pressed', 'false');
+        });
       });
-      scoreEl.textContent = '--'; tierEl.textContent = 'Aguardando'; summaryEl.textContent = '';
-      priHigh.innerHTML = ''; priMed.innerHTML = ''; priOk.innerHTML = '';
+      scoreEl.textContent = '--';
+      tierEl.textContent = 'Aguardando';
+      summaryEl.textContent = '';
+      priHigh.innerHTML = '';
+      priMed.innerHTML = '';
+      priOk.innerHTML = '';
       pdfBtn.disabled = true;
       scoreEl.classList.remove('good', 'mid', 'poor');
     });
 
-    // PDF generation using html2canvas (Promises)
+    // PDF generation (relies on html2canvas + jspdf if available)
     pdfBtn.addEventListener('click', function () {
       if (!pdfBtn) return;
       pdfBtn.disabled = true;
       pdfBtn.textContent = 'Gerando PDF...';
-
       try {
         var titleEl = document.querySelector('.header-text h1');
         var title = titleEl ? titleEl.textContent : 'Relatório';
@@ -283,10 +355,9 @@ document.addEventListener('DOMContentLoaded', function () {
         pdfDiv.style.background = '#fff';
         pdfDiv.style.color = '#111';
         pdfDiv.style.fontFamily = 'Arial, Helvetica, sans-serif';
-        pdfDiv.innerHTML = '<h1 style="margin:0 0 8px">' + title + '</h1>'
-          + '<p style="margin:0 0 10px">Pontuação: <strong>' + score + '</strong> — '
-          + (score >= 80 ? 'Estratégico' : score >= 50 ? 'Bom potencial' : 'Reconstruir base') + '</p>'
-          + '<p style="margin:0 0 12px">Sim: ' + simCount + ' de ' + total + '</p><hr style="margin:12px 0">';
+        pdfDiv.innerHTML = '<h1 style="margin:0 0 8px">' + title + '</h1>' +
+          '<p style="margin:0 0 10px">Pontuação: <strong>' + score + '</strong> — ' + (score >= 80 ? 'Estratégico' : score >= 50 ? 'Bom potencial' : 'Reconstruir base') + '</p>' +
+          '<p style="margin:0 0 12px">Sim: ' + simCount + ' de ' + total + '</p><hr style="margin:12px 0">';
 
         for (var p = 0; p < items.length; p += 1) {
           var itx = items[p];
@@ -300,9 +371,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         document.body.appendChild(pdfDiv);
-
         if (typeof html2canvas !== 'function') throw new Error('html2canvas não disponível.');
-
         html2canvas(pdfDiv, { scale: 2, backgroundColor: '#ffffff' }).then(function (canvas) {
           try {
             var imgData = canvas.toDataURL('image/jpeg', 0.95);
@@ -327,17 +396,14 @@ document.addEventListener('DOMContentLoaded', function () {
           alert('Erro ao capturar conteúdo para PDF. Veja console.');
         });
       } catch (errOuter) {
-        console.error('Erro preparando PDF:', errOuter);
+        console.error('Erro ao preparar PDF:', errOuter);
         pdfBtn.disabled = false;
         pdfBtn.textContent = 'Gerar PDF';
         alert('Erro ao preparar PDF: ' + (errOuter && errOuter.message ? errOuter.message : 'ver console'));
       }
     });
 
-    // initial state
     if (pdfBtn) pdfBtn.disabled = true;
-
-    console.log('app.js inicializado com sucesso');
   } catch (err) {
     console.error('Erro inicializando app.js:', err);
     alert('Erro ao inicializar o questionário. Veja o console.');
