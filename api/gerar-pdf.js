@@ -1,6 +1,27 @@
 // api/gerar-pdf.js
+import fs from 'fs/promises';
+import path from 'path';
 import chromium from '@sparticuz/chromium';
 import puppeteer from 'puppeteer-core';
+
+const STYLES_PATH = path.join(process.cwd(), 'styles.css');
+const DEFAULT_CSS = `
+  @page { size: A4; margin: 20mm; }
+  html, body { width: 210mm; height: 297mm; margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: Arial, Helvetica, sans-serif; color: #111; background: #fff; font-size: 12pt; }
+  img { max-width: 100%; height: auto; display: block; }
+  .page-break { page-break-after: always; }
+`;
+
+async function loadCss() {
+  try {
+    const css = await fs.readFile(STYLES_PATH, 'utf8');
+    return css;
+  } catch (err) {
+    console.warn('styles.css não encontrado, usando CSS padrão');
+    return DEFAULT_CSS;
+  }
+}
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -11,18 +32,15 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).send('Método não permitido');
 
   const { html } = req.body || {};
-  console.log('Body length:', html ? html.length : 0);
   if (!html) return res.status(400).send('HTML não fornecido');
 
   let browser = null;
   try {
-    // Obtenha o caminho do executável chamando a função corretamente
+    const css = await loadCss();
+
     const execPath = typeof chromium.executablePath === 'function'
       ? await chromium.executablePath()
       : await chromium.executablePath;
-
-    console.log('chromium execPath:', execPath);
-    console.log('chromium.args length:', Array.isArray(chromium.args) ? chromium.args.length : typeof chromium.args);
 
     if (!execPath || typeof execPath !== 'string') {
       console.error('Exec path inválido:', execPath);
@@ -35,13 +53,20 @@ export default async function handler(req, res) {
       executablePath: execPath,
       headless: true
     });
-    console.log('Browser launched');
 
     const page = await browser.newPage();
     await page.emulateMediaType('screen');
 
-    const forcedCSS = `<style>@page{size:A4;margin:20mm}html,body{width:210mm;height:297mm;margin:0;padding:0}body{font-family:Arial,Helvetica,sans-serif}</style>`;
-    const documentHTML = `<!doctype html><html><head><meta charset="utf-8"/>${forcedCSS}</head><body>${html}</body></html>`;
+    const head = `
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      <title>Relatório</title>
+      <style>${css}</style>
+      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+      <base href="https://teste-insta.vercel.app/">
+    `;
+
+    const documentHTML = `<!doctype html><html lang="pt-BR"><head>${head}</head><body>${html}</body></html>`;
 
     await page.setContent(documentHTML, { waitUntil: 'networkidle0' });
     await page.evaluateHandle('document.fonts.ready');
@@ -53,7 +78,6 @@ export default async function handler(req, res) {
       preferCSSPageSize: true
     });
 
-    console.log('PDF generated, bytes:', pdfBuffer.length);
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', 'attachment; filename=relatorio.pdf');
     res.setHeader('Content-Length', String(pdfBuffer.length));
@@ -63,7 +87,7 @@ export default async function handler(req, res) {
     return res.status(500).send('Erro interno ao gerar PDF');
   } finally {
     if (browser) {
-      try { await browser.close(); console.log('Browser closed'); } catch (e) { console.warn('Erro fechando browser', e); }
+      try { await browser.close(); } catch (e) { console.warn('Erro fechando browser', e); }
     }
   }
 }
