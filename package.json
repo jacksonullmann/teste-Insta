@@ -4,7 +4,7 @@
   "description": "API para gerar PDF com chrome-aws-lambda + puppeteer-core",
   "main": "api/gerar-pdf.js",
   "engines": {
-    "node": "18.x"
+    "node": "22.x"
   },
   "scripts": {
     "start": "vercel dev"
