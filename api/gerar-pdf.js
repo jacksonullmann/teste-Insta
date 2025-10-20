@@ -1,4 +1,4 @@
-// api/gerar-pdf.js  (ESM)
+// api/gerar-pdf.js
 import chromium from '@sparticuz/chromium';
 import puppeteer from 'puppeteer-core';
 
@@ -16,14 +16,26 @@ export default async function handler(req, res) {
 
   let browser = null;
   try {
-    const execPath = await chromium.executablePath;
-    console.log('Launching chromium at', execPath);
+    // Obtenha o caminho do executável chamando a função corretamente
+    const execPath = typeof chromium.executablePath === 'function'
+      ? await chromium.executablePath()
+      : await chromium.executablePath;
+
+    console.log('chromium execPath:', execPath);
+    console.log('chromium.args length:', Array.isArray(chromium.args) ? chromium.args.length : typeof chromium.args);
+
+    if (!execPath || typeof execPath !== 'string') {
+      console.error('Exec path inválido:', execPath);
+      return res.status(500).send('Ambiente sem binário Chromium disponível');
+    }
+
     browser = await puppeteer.launch({
-      args: chromium.args,
+      args: chromium.args || [],
       defaultViewport: { width: 1200, height: 800 },
       executablePath: execPath,
-      headless: true,
+      headless: true
     });
+    console.log('Browser launched');
 
     const page = await browser.newPage();
     await page.emulateMediaType('screen');
