@@ -1,12 +1,10 @@
 {
   "name": "teste-insta",
   "version": "1.0.0",
-  "description": "API gerar PDF",
   "main": "api/gerar-pdf.js",
-  "engines": { "node": "22.x" },
   "type": "module",
-    "scripts": { "start": "vercel dev" },
-    "dependencies": {
+  "engines": { "node": "22.x" },
+  "dependencies": {
     "puppeteer-core": "^20.0.0",
     "@sparticuz/chromium": "^138.0.2"
   }
