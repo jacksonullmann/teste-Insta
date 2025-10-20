@@ -1,8 +1,6 @@
 // api/gerar-pdf.js
 import fs from 'fs/promises';
 import path from 'path';
-import chromium from '@sparticuz/chromium';
-import puppeteer from 'puppeteer-core';
 
 const STYLES_PATH = path.join(process.cwd(), 'docs', 'styles.css');
 const DEFAULT_CSS = `
@@ -15,8 +13,7 @@ const DEFAULT_CSS = `
 
 async function loadCss() {
   try {
-    const css = await fs.readFile(STYLES_PATH, 'utf8');
-    return css;
+    return await fs.readFile(STYLES_PATH, 'utf8');
   } catch (err) {
     console.warn('styles.css não encontrado, usando CSS padrão');
     return DEFAULT_CSS;
@@ -38,6 +35,10 @@ export default async function handler(req, res) {
   try {
     const css = await loadCss();
 
+    // imports dinâmicos em runtime para evitar trabalho pesado no build
+    const chromium = await import('@sparticuz/chromium').then(m => m.default || m);
+    const puppeteer = await import('puppeteer-core').then(m => m.default || m);
+
     const execPath = typeof chromium.executablePath === 'function'
       ? await chromium.executablePath()
       : await chromium.executablePath;
@@ -55,7 +56,6 @@ export default async function handler(req, res) {
     });
 
     const page = await browser.newPage();
-
     try { await page.emulateMediaType('screen'); } catch (e) { /* ignora se não suportar */ }
 
     const baseTag = baseUrl ? `<base href="${baseUrl}">` : '';
@@ -66,9 +66,9 @@ export default async function handler(req, res) {
       ${baseTag}
       <style>${css}</style>
     `;
-
     const finalHtml = `<!doctype html><html lang="pt-BR"><head>${head}</head><body>${html}</body></html>`;
 
+    // debug útil em ambiente dev; comente em produção se quiser
     console.log('HTML enviado (preview):', finalHtml.slice(0, 1000));
 
     await page.setContent(finalHtml, { waitUntil: 'networkidle0' });
