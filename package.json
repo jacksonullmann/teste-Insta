@@ -1,16 +1,12 @@
 {
   "name": "teste-insta",
   "version": "1.0.0",
-  "description": "API para gerar PDF com chrome-aws-lambda + puppeteer-core",
+  "description": "API gerar PDF",
   "main": "api/gerar-pdf.js",
-  "engines": {
-    "node": "22.x"
-  },
-  "scripts": {
-    "start": "vercel dev"
-  },
+  "engines": { "node": "22.x" },
+  "scripts": { "start": "vercel dev" },
   "dependencies": {
-    "chrome-aws-lambda": "^15.0.0",
-    "puppeteer-core": "^20.0.0"
+    "puppeteer-core": "^20.0.0",
+    "@sparticuz/chromium": "^138.0.2"
   }
 }
