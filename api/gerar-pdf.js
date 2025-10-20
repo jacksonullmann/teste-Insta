@@ -1,6 +1,8 @@
 // api/gerar-pdf.js
 import fs from 'fs/promises';
 import path from 'path';
+import chromium from '@sparticuz/chromium';
+import puppeteer from 'puppeteer-core';
 
 const STYLES_PATH = path.join(process.cwd(), 'docs', 'styles.css');
 const DEFAULT_CSS = `
@@ -33,33 +35,27 @@ export default async function handler(req, res) {
   if (!html) return res.status(400).send('HTML não fornecido');
 
   let browser = null;
-
   try {
     const css = await loadCss();
 
-    // imports dinâmicos em runtime (evita work pesado no build)
-    const chromiumModule = await import('@sparticuz/chromium').then(m => m.default || m);
-    const puppeteerModule = await import('puppeteer-core').then(m => m.default || m);
-
-    const execPath = typeof chromiumModule.executablePath === 'function'
-      ? await chromiumModule.executablePath()
-      : await chromiumModule.executablePath;
+    const execPath = typeof chromium.executablePath === 'function'
+      ? await chromium.executablePath()
+      : await chromium.executablePath;
 
     if (!execPath || typeof execPath !== 'string') {
       console.error('Exec path inválido:', execPath);
       return res.status(500).send('Ambiente sem binário Chromium disponível');
     }
 
-    browser = await puppeteerModule.launch({
-      args: chromiumModule.args || [],
+    browser = await puppeteer.launch({
+      args: chromium.args || [],
       defaultViewport: { width: 1200, height: 800 },
       executablePath: execPath,
       headless: true
     });
 
     const page = await browser.newPage();
-
-    try { await page.emulateMediaType('screen'); } catch (e) { console.warn('emulateMediaType falhou:', e && e.message); }
+    await page.emulateMediaType('screen');
 
     const head = `
       <meta charset="utf-8">
@@ -73,19 +69,7 @@ export default async function handler(req, res) {
     const documentHTML = `<!doctype html><html lang="pt-BR"><head>${head}</head><body>${html}</body></html>`;
 
     await page.setContent(documentHTML, { waitUntil: 'networkidle0' });
-
-    // aguardar fonts
-    try {
-      await page.evaluate(async () => {
-        if (document.fonts && document.fonts.ready) {
-          await document.fonts.ready;
-        }
-      });
-    } catch (e) {
-      console.warn('Erro aguardando document.fonts.ready:', e && (e.stack || e.message || e));
-    }
-
-    await page.waitForTimeout(150);
+    await page.evaluateHandle('document.fonts.ready');
 
     const pdfBuffer = await page.pdf({
       format: 'A4',
