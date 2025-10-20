@@ -55,7 +55,9 @@ export default async function handler(req, res) {
     });
 
     const page = await browser.newPage();
-    await page.emulateMediaType('screen');
+
+    // Proteger emulateMediaType (algumas versões podem falhar)
+    try { await page.emulateMediaType('screen'); } catch (e) { console.warn('emulateMediaType falhou:', e && e.message); }
 
     const head = `
       <meta charset="utf-8">
@@ -69,7 +71,20 @@ export default async function handler(req, res) {
     const documentHTML = `<!doctype html><html lang="pt-BR"><head>${head}</head><body>${html}</body></html>`;
 
     await page.setContent(documentHTML, { waitUntil: 'networkidle0' });
-    await page.evaluateHandle('document.fonts.ready');
+
+    // Aguarda fonts de forma confiável (espera quando disponível)
+    try {
+      await page.evaluate(async () => {
+        if (document.fonts && document.fonts.ready) {
+          await document.fonts.ready;
+        }
+      });
+    } catch (e) {
+      console.warn('Erro aguardando document.fonts.ready:', e && (e.stack || e.message || e));
+    }
+
+    // Pequena folga para assets remotos finalizarem
+    await page.waitForTimeout(150);
 
     const pdfBuffer = await page.pdf({
       format: 'A4',
