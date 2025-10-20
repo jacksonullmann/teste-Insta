@@ -4,7 +4,7 @@ import path from 'path';
 import chromium from '@sparticuz/chromium';
 import puppeteer from 'puppeteer-core';
 
-const STYLES_PATH = path.join(process.cwd(), 'styles.css');
+const STYLES_PATH = path.join(process.cwd(), 'docs', 'styles.css');
 const DEFAULT_CSS = `
   @page { size: A4; margin: 20mm; }
   html, body { width: 210mm; height: 297mm; margin: 0; padding: 0; box-sizing: border-box; }
