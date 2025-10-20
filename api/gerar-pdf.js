@@ -31,7 +31,7 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).send('Método não permitido');
 
-  const { html } = req.body || {};
+  const { html, baseUrl } = req.body || {};
   if (!html) return res.status(400).send('HTML não fornecido');
 
   let browser = null;
@@ -55,36 +55,49 @@ export default async function handler(req, res) {
     });
 
     const page = await browser.newPage();
-    await page.emulateMediaType('screen');
 
+    try { await page.emulateMediaType('screen'); } catch (e) { /* ignora se não suportar */ }
+
+    const baseTag = baseUrl ? `<base href="${baseUrl}">` : '';
     const head = `
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       <title>Relatório</title>
+      ${baseTag}
       <style>${css}</style>
-      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-      <base href="https://teste-insta.vercel.app/">
     `;
 
-    const documentHTML = `<!doctype html><html lang="pt-BR"><head>${head}</head><body>${html}</body></html>`;
+    const finalHtml = `<!doctype html><html lang="pt-BR"><head>${head}</head><body>${html}</body></html>`;
 
-    await page.setContent(documentHTML, { waitUntil: 'networkidle0' });
-    await page.evaluateHandle('document.fonts.ready');
+    console.log('HTML enviado (preview):', finalHtml.slice(0, 1000));
+
+    await page.setContent(finalHtml, { waitUntil: 'networkidle0' });
+
+    try {
+      await page.evaluate(async () => {
+        if (document.fonts && document.fonts.ready) {
+          await document.fonts.ready;
+        }
+      });
+    } catch (e) {
+      console.warn('Erro ao aguardar document.fonts.ready:', e && e.message);
+    }
+
+    await page.waitForTimeout(150);
 
     const pdfBuffer = await page.pdf({
       format: 'A4',
       printBackground: true,
-      margin: { top: '20mm', bottom: '20mm', left: '15mm', right: '15mm' },
-      preferCSSPageSize: true
+      margin: { top: '20mm', bottom: '20mm', left: '15mm', right: '15mm' }
     });
 
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', 'attachment; filename=relatorio.pdf');
-    res.setHeader('Content-Length', String(pdfBuffer.length));
-    return res.status(200).end(pdfBuffer);
+    res.setHeader('Content-Length', pdfBuffer.length);
+    return res.status(200).send(pdfBuffer);
   } catch (err) {
-    console.error('Erro gerar-pdf:', err && (err.stack || err.message || err));
-    return res.status(500).send('Erro interno ao gerar PDF');
+    console.error('Erro gerar-pdf:', err);
+    return res.status(500).send('Erro ao gerar PDF');
   } finally {
     if (browser) {
       try { await browser.close(); } catch (e) { console.warn('Erro fechando browser', e); }
