@@ -4,8 +4,9 @@
   "description": "API gerar PDF",
   "main": "api/gerar-pdf.js",
   "engines": { "node": "22.x" },
-  "scripts": { "start": "vercel dev" },
-  "dependencies": {
+  "type": "module",
+    "scripts": { "start": "vercel dev" },
+    "dependencies": {
     "puppeteer-core": "^20.0.0",
     "@sparticuz/chromium": "^138.0.2"
   }
