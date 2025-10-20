@@ -1,5 +1,6 @@
-// api/gerar-pdf.js
+// api/gerar-pdf.js  (ESM)
 import chromium from '@sparticuz/chromium';
+import puppeteer from 'puppeteer-core';
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -10,33 +11,26 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).send('Método não permitido');
 
   const { html } = req.body || {};
+  console.log('Body length:', html ? html.length : 0);
   if (!html) return res.status(400).send('HTML não fornecido');
 
   let browser = null;
   try {
-    console.log('Launching chromium...');
-    browser = await chromium.puppeteer.launch({
+    const execPath = await chromium.executablePath;
+    console.log('Launching chromium at', execPath);
+    browser = await puppeteer.launch({
       args: chromium.args,
       defaultViewport: { width: 1200, height: 800 },
-      executablePath: await chromium.executablePath,
-      headless: chromium.headless,
+      executablePath: execPath,
+      headless: true,
     });
-    console.log('Chromium started');
 
     const page = await browser.newPage();
     await page.emulateMediaType('screen');
 
-    const forcedCSS = `
-      <style>
-        @page { size: A4; margin: 20mm; }
-        html, body { width: 210mm; height: 297mm; margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: Arial, Helvetica, sans-serif; font-size: 12pt; color: #111; background: #fff; }
-        img { max-width: 100%; height: auto; display: block; }
-        .page-break { page-break-after: always; }
-      </style>
-    `;
-
+    const forcedCSS = `<style>@page{size:A4;margin:20mm}html,body{width:210mm;height:297mm;margin:0;padding:0}body{font-family:Arial,Helvetica,sans-serif}</style>`;
     const documentHTML = `<!doctype html><html><head><meta charset="utf-8"/>${forcedCSS}</head><body>${html}</body></html>`;
+
     await page.setContent(documentHTML, { waitUntil: 'networkidle0' });
     await page.evaluateHandle('document.fonts.ready');
 
@@ -47,18 +41,17 @@ export default async function handler(req, res) {
       preferCSSPageSize: true
     });
 
-    console.log('PDF size:', pdfBuffer.length);
+    console.log('PDF generated, bytes:', pdfBuffer.length);
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', 'attachment; filename=relatorio.pdf');
     res.setHeader('Content-Length', String(pdfBuffer.length));
-    res.status(200);
-    res.end(pdfBuffer);
+    return res.status(200).end(pdfBuffer);
   } catch (err) {
     console.error('Erro gerar-pdf:', err && (err.stack || err.message || err));
     return res.status(500).send('Erro interno ao gerar PDF');
   } finally {
     if (browser) {
-      try { await browser.close(); console.log('Browser fechado'); } catch (e) { console.warn('Erro fechando browser', e); }
+      try { await browser.close(); console.log('Browser closed'); } catch (e) { console.warn('Erro fechando browser', e); }
     }
   }
 }
