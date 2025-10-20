@@ -1,81 +1,93 @@
 // api/gerar-pdf.js
-// Next.js API route que recebe { html } via POST e retorna um PDF
-import fs from 'fs';
+import fs from 'fs/promises';
 import path from 'path';
+import chromium from '@sparticuz/chromium';
+import puppeteer from 'puppeteer-core';
+
+const STYLES_PATH = path.join(process.cwd(), 'docs', 'styles.css');
+const DEFAULT_CSS = `
+  @page { size: A4; margin: 20mm; }
+  html, body { width: 210mm; height: 297mm; margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: Arial, Helvetica, sans-serif; color: #111; background: #fff; font-size: 12pt; }
+  img { max-width: 100%; height: auto; display: block; }
+  .page-break { page-break-after: always; }
+`;
+
+async function loadCss() {
+  try {
+    const css = await fs.readFile(STYLES_PATH, 'utf8');
+    return css;
+  } catch (err) {
+    console.warn('styles.css não encontrado, usando CSS padrão');
+    return DEFAULT_CSS;
+  }
+}
 
 export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    res.status(405).end('Method Not Allowed');
-    return;
-  }
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
+  if (req.method === 'OPTIONS') return res.status(200).end();
+  if (req.method !== 'POST') return res.status(405).send('Método não permitido');
+
+  const { html } = req.body || {};
+  if (!html) return res.status(400).send('HTML não fornecido');
+
+  let browser = null;
   try {
-    const { html } = req.body;
-    if (!html) return res.status(400).send('HTML faltando');
+    const css = await loadCss();
 
-    // Carregar puppeteer de forma compatível com serverless (Vercel) ou ambiente normal
-    let browser = null;
-    let puppeteer;
-    let launchOptions = { args: ['--no-sandbox', '--disable-setuid-sandbox'] };
+    const execPath = typeof chromium.executablePath === 'function'
+      ? await chromium.executablePath()
+      : await chromium.executablePath;
 
-    try {
-      // tenta chrome-aws-lambda (bom para Vercel / Lambda)
-      // eslint-disable-next-line import/no-extraneous-dependencies
-      const chrome = await import('chrome-aws-lambda');
-      puppeteer = await import('puppeteer-core');
-      const executablePath = await chrome.executablePath;
-      if (executablePath) launchOptions.executablePath = executablePath;
-      launchOptions.args = (chrome.args || []).concat(launchOptions.args || []);
-      launchOptions.headless = chrome.headless;
-      browser = await puppeteer.launch(launchOptions);
-    } catch (err) {
-      // fallback para puppeteer local (quando não estiver em serverless)
-      // eslint-disable-next-line import/no-extraneous-dependencies
-      puppeteer = await import('puppeteer');
-      browser = await puppeteer.launch(launchOptions);
+    if (!execPath || typeof execPath !== 'string') {
+      console.error('Exec path inválido:', execPath);
+      return res.status(500).send('Ambiente sem binário Chromium disponível');
     }
 
-    const page = await browser.newPage();
-
-    // Emular media type "screen" para aplicar estilos como no navegador
-    try {
-      await page.emulateMediaType('screen');
-    } catch (e) {
-      // ignore se não suportado
-    }
-
-    // Define base tag se quiser resolver assets relativos (opcional)
-    // se você usa assets relativos, insira a URL base correta aqui
-    // const baseUrl = 'https://seu-dominio.com/';
-    // const htmlWithBase = html.replace('<head>', `<head><base href="${baseUrl}">`);
-
-    await page.setContent(html, { waitUntil: 'networkidle0' });
-
-    // Esperar carregamento de fontes
-    await page.evaluate(async () => {
-      if (document.fonts && document.fonts.ready) {
-        await document.fonts.ready;
-      }
+    browser = await puppeteer.launch({
+      args: chromium.args || [],
+      defaultViewport: { width: 1200, height: 800 },
+      executablePath: execPath,
+      headless: true
     });
 
-    // pequena espera extra para recursos remotos (opcional)
-    await page.waitForTimeout(150);
+    const page = await browser.newPage();
+    await page.emulateMediaType('screen');
+
+    const head = `
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      <title>Relatório</title>
+      <style>${css}</style>
+      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+      <base href="https://teste-insta.vercel.app/">
+    `;
+
+    const documentHTML = `<!doctype html><html lang="pt-BR"><head>${head}</head><body>${html}</body></html>`;
+
+    await page.setContent(documentHTML, { waitUntil: 'networkidle0' });
+    await page.evaluateHandle('document.fonts.ready');
 
     const pdfBuffer = await page.pdf({
       format: 'A4',
       printBackground: true,
-      margin: { top: '20mm', bottom: '20mm', left: '15mm', right: '15mm' }
+      margin: { top: '20mm', bottom: '20mm', left: '15mm', right: '15mm' },
+      preferCSSPageSize: true
     });
-
-    await browser.close();
 
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', 'attachment; filename=relatorio.pdf');
-    res.setHeader('Content-Length', pdfBuffer.length);
-    res.status(200).send(pdfBuffer);
+    res.setHeader('Content-Length', String(pdfBuffer.length));
+    return res.status(200).end(pdfBuffer);
   } catch (err) {
-    console.error('Erro gerar-pdf:', err);
-    try { if (browser) await browser.close(); } catch (_) {}
-    res.status(500).send('Erro ao gerar PDF');
+    console.error('Erro gerar-pdf:', err && (err.stack || err.message || err));
+    return res.status(500).send('Erro interno ao gerar PDF');
+  } finally {
+    if (browser) {
+      try { await browser.close(); } catch (e) { console.warn('Erro fechando browser', e); }
+    }
   }
 }
