@@ -1,5 +1,5 @@
 // api/gerar-pdf.js
-import chromium from 'chrome-aws-lambda';
+import chromium from '@sparticuz/chromium';
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
