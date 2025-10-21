@@ -99,7 +99,7 @@ body {
 .action-chip.danger{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));color:#dc2626;border-color:rgba(239,68,68,0.08)}
 
 /* actions */
-.actions{display:flex;gap:10px;margin-top:10px}
+.actions{display:flex;gap:10px;margin-top:10px;padding-left: 10px;padding-right: 10px}
 .btn{padding:8px 12px;border-radius:8px;border:none;cursor:pointer;font-weight:700;background:rgba(255,255,255,0.03);color:var(--text)}
 .btn.primary{background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#051126}
 .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.04)}
@@ -154,5 +154,52 @@ body {
 /* ajuste responsivo para telas pequenas */
 @media (max-width:760px) {
   .opt { font-size:17px; padding:6px 12px; }
+}
+
+/* Barra de progresso PDF */
+#pdf-progress-container {
+  margin-top: 10px;
+}
+
+.pdf-progress {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+padding-left: 10px;
+   padding-right: 10px;
+}
+
+.pdf-progress .shell {
+  width: 100%;
+  max-width: 100%;
+  height: 14px;
+  border-radius: 999px;
+    border: 1px solid rgba(11,99,214,0.08);
+  overflow: hidden;
+}
+
+.pdf-progress .bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg,#3fa5ff,#7ac0ff 60%);
+  transition: width 0.3s ease;
+}
+
+.pdf-progress .num {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0b3456;
+}
+
+.sub {display:none}
+
+/* Mobile: esconder botão e mostrar só a barra */
+@media (max-width: 640px) {
+  #downloadPdf.generating {
+    display: none;
+  }
+  #pdf-progress-container {
+    margin-top: 12px;
+  }
 }
 

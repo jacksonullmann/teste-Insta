@@ -1,4 +1,4 @@
-// print.js — Arquivo final completo
+// print.js — Arquivo final completo (mantida a lógica original, só alterada a barra)
 var ENDPOINT = 'https://teste-insta.vercel.app/api/gerar-pdf';
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -27,117 +27,84 @@ document.addEventListener('DOMContentLoaded', function () {
     if (btnDownload) btnDownload.disabled = true;
   });
 
-  (function ensureOverlay() {
-    if (!btnDownload) return;
+  // --- Barra de progresso ajustada para container fixo ---
+  (function ensureProgressBar() {
+    var container = document.getElementById('pdf-progress-container');
+    if (!container || !btnDownload) return;
 
-    var existing = document.querySelector('#pdf-progress-overlay[data-pdf-injected="true"]');
-    if (existing && existing.__pdfProgressInitialized) { return; }
-    if (existing && existing.parentNode) existing.parentNode.removeChild(existing);
-
-    var overlay = document.createElement('div');
-    overlay.id = 'pdf-progress-overlay';
-    overlay.setAttribute('data-pdf-injected', 'true');
-    overlay.style.position = 'absolute';
-    overlay.style.left = '0';
-    overlay.style.top = '0';
-    overlay.style.zIndex = '2147483647';
-    overlay.style.pointerEvents = 'none';
-    overlay.style.width = '0';
-    overlay.style.height = '0';
-    document.body.appendChild(overlay);
-
-    var sr = overlay.attachShadow({ mode: 'open' });
-
-    sr.innerHTML = `
-      <style>
-        :host{ all: initial; font-family: Inter, Arial, sans-serif; }
-        .container{ pointer-events:auto; display:flex; align-items:center; gap:8px; min-width:0; transform-origin:left top; }
-        .shell{ width:220px; height:14px; padding:2px; box-sizing:border-box; border-radius:999px;
-               background:linear-gradient(90deg,#fbfdff,#f8fbff); border:1px solid rgba(11,99,214,0.08);
-               box-shadow: inset 0 1px 0 rgba(255,255,255,0.6); flex:0 0 auto; min-width:0; }
-        .bar{ height:100%; width:0%; border-radius:999px; transition:width 360ms cubic-bezier(.2,.9,.2,1);
-              background:linear-gradient(90deg,#3fa5ff,#7ac0ff 60%); box-shadow:0 6px 18px rgba(63,165,255,0.12);
-              position:relative; overflow:hidden; }
-        .bar::before{ content:""; position:absolute; top:-30%; left:-25%; width:50%; height:160%;
-                      background:linear-gradient(90deg, rgba(255,255,255,0.5), rgba(255,255,255,0.12), rgba(255,255,255,0));
-                      transform:rotate(25deg); animation:gloss 2.2s linear infinite; opacity:.85; pointer-events:none; }
-        @keyframes gloss{ from{ left:-40% } to{ left:120% } }
-        .meta{ display:flex; flex-direction:column; gap:2px; align-items:flex-start; min-width:0; }
-        .num{ font-weight:800; color:#0b3456; font-size:13px; visibility:hidden; opacity:0; transition:opacity .22s ease; white-space:nowrap; }
-        .sub{ font-size:12px; color:#6b7b89; white-space:nowrap; }
-        .dot{ width:12px; height:12px; border-radius:50%; flex:0 0 auto;
-              background:linear-gradient(180deg,#fff,#eef6ff); border:2px solid rgba(11,99,214,0.12);
-              box-shadow:0 2px 6px rgba(3,18,46,0.12); transition:all .24s ease; display:none;}
-        @media (max-width:640px){
-          .shell{ width:140px; height:12px; }
-          .num{ font-size:12px; }
-        }
-        .inactive .bar{ box-shadow:none; background:linear-gradient(90deg,#ffffff,#ffffff); }
-        .inactive .shell{ border-color: rgba(11,99,214,0.08); background:transparent; box-shadow:none; }
-      </style>
-      <div id="root" class="inactive">
-        <div id="wrap" class="container">
-          <div class="shell"><div id="bar" class="bar" aria-hidden="true"></div></div>
-          <div class="meta"><div id="num" class="num">0%</div><div id="sub" class="sub"></div></div>
-          <div id="dot" class="dot" aria-hidden="true"></div>
+    // cria barra se não existir
+    var existing = document.getElementById('pdf-progress');
+    if (!existing) {
+      var wrap = document.createElement('div');
+      wrap.id = 'pdf-progress';
+      wrap.className = 'pdf-progress';
+      wrap.innerHTML = `
+        <div class="shell"><div class="bar" id="pdf-bar" aria-hidden="true"></div></div>
+        <div class="meta">
+          <div class="num" id="pdf-num">0%</div>
+          <div class="sub" id="pdf-sub"></div>
         </div>
-      </div>
-    `;
-
-    var root = sr.getElementById('root');
-    var bar = sr.getElementById('bar');
-    var num = sr.getElementById('num');
-    var sub = sr.getElementById('sub');
-    var dot = sr.getElementById('dot');
-
-    window.__pdfProgress = {
-      overlay: overlay,
-      shadow: sr,
-      setWidth: function (pct) { try { bar.style.width = pct + '%'; } catch (e) {} },
-      setNumVisible: function (pct, visible) { try { num.textContent = pct + '%'; if (visible) { num.style.visibility = 'visible'; num.style.opacity = '1'; } else { num.style.visibility = 'hidden'; num.style.opacity = '0'; } } catch (e) {} },
-      setSub: function (t) { try { sub.textContent = t || ''; } catch (e) {} },
-      setDotGood: function (g) { try { if (g) { dot.style.background = 'linear-gradient(180deg,#e6fff4,#b8f1d6)'; dot.style.borderColor = 'rgba(18,150,81,0.22)'; } else { dot.style.background = 'linear-gradient(180deg,#fff,#eef6ff)'; dot.style.borderColor = 'rgba(11,99,214,0.12)'; } } catch (e) {} },
-      setInactiveClass: function (v) { try { if (v) root.classList.add('inactive'); else root.classList.remove('inactive'); } catch (e) {} },
-      progressBarPercent: function () { try { var w = bar.style.width || '0%'; return parseInt(String(w).replace('%', ''), 10) || 0; } catch (e) { return 0; } },
-      revealNumericFlag: false,
-      __internal: { bar: bar, num: num, root: root }
-    };
-
-    function positionOverlay() {
-      try {
-        var rect = btnDownload.getBoundingClientRect();
-        var left = window.scrollX + rect.right + 8;
-        var top = window.scrollY + rect.top + (rect.height - 24) / 2;
-        var overlayWidth = 260;
-        if ((window.innerWidth - rect.right) < overlayWidth) {
-          left = window.scrollX + rect.left - overlayWidth - 8;
-          if (left < 4) left = window.scrollX + 4;
-        }
-        if (top < window.scrollY + 4) top = window.scrollY + 4;
-        if (top + 40 > window.scrollY + window.innerHeight) top = window.scrollY + window.innerHeight - 44;
-        overlay.style.left = left + 'px';
-        overlay.style.top = top + 'px';
-      } catch (e) {}
+      `;
+      container.appendChild(wrap);
+      existing = wrap;
     }
 
-    positionOverlay();
-    var repositionTimer = null;
-    window.addEventListener('resize', function () { clearTimeout(repositionTimer); repositionTimer = setTimeout(positionOverlay, 80); });
-    window.addEventListener('scroll', function () { clearTimeout(repositionTimer); repositionTimer = setTimeout(positionOverlay, 60); }, { passive: true });
+    var bar = document.getElementById('pdf-bar');
+    var num = document.getElementById('pdf-num');
+    var sub = document.getElementById('pdf-sub');
 
+    // estado interno
+    var revealNumericFlag = false;
+
+    // API compatível com o código original
+    window.__pdfProgress = {
+      overlay: existing, // mantemos referência, embora não seja overlay absoluto
+      shadow: null, // não usamos shadow DOM no novo modelo
+      setWidth: function (pct) {
+        try { bar.style.width = Math.max(0, Math.min(100, Math.round(pct))) + '%'; } catch (e) {}
+      },
+      setNumVisible: function (pct, visible) {
+        try {
+          num.textContent = Math.max(0, Math.min(100, Math.round(pct))) + '%';
+          num.style.visibility = visible ? 'visible' : 'hidden';
+          num.style.opacity = visible ? '1' : '0';
+        } catch (e) {}
+      },
+      setSub: function (t) {
+        try { sub.textContent = t || ''; } catch (e) {}
+      },
+      setDotGood: function (g) {
+        // no layout novo não há "dot", mantemos no-op para compatibilidade
+      },
+      setInactiveClass: function (v) {
+        try {
+          if (v) existing.classList.add('inactive');
+          else existing.classList.remove('inactive');
+        } catch (e) {}
+      },
+      progressBarPercent: function () {
+        try {
+          var w = bar.style.width || '0%';
+          return parseInt(String(w).replace('%', ''), 10) || 0;
+        } catch (e) { return 0; }
+      },
+      revealNumericFlag: revealNumericFlag,
+      __internal: { bar: bar, num: num, root: existing }
+    };
+
+    // No modelo novo, apenas revelamos o número no primeiro clique (compatível)
     btnDownload.addEventListener('click', function onFirstReveal() {
       window.__pdfProgress.revealNumericFlag = true;
       window.__pdfProgress.setNumVisible(window.__pdfProgress.progressBarPercent(), true);
       window.__pdfProgress.setInactiveClass(false);
-      positionOverlay();
       btnDownload.removeEventListener('click', onFirstReveal);
     }, { once: true });
 
+    // estado inicial
     window.__pdfProgress.setInactiveClass(true);
     window.__pdfProgress.setNumVisible(0, false);
-
-    overlay.__pdfProgressInitialized = true;
   })();
+  // --- Fim da alteração da barra ---
 
   if (btnDownload) {
     btnDownload.addEventListener('click', function () {
@@ -151,12 +118,14 @@ document.addEventListener('DOMContentLoaded', function () {
             window.__pdfProgress.setSub('Preparando');
             window.__pdfProgress.setWidth(5);
           }
-
           btnDownload.disabled = true;
           var oldText = btnDownload.textContent || '';
           btnDownload.textContent = 'Gerando...';
 
-          fakeInterval = startFakeProgress(function (p) { if (window.__pdfProgress) window.__pdfProgress.updateProgress(p); });
+          // progresso fake
+          fakeInterval = startFakeProgress(function (p) {
+            if (window.__pdfProgress) window.__pdfProgress.updateProgress(p);
+          });
 
           var html = buildReportHTML();
           if (window.__pdfProgress) window.__pdfProgress.updateProgress(20, 'Enviando');
@@ -177,6 +146,7 @@ document.addEventListener('DOMContentLoaded', function () {
             throw new Error('Servidor retornou ' + res.status + ': ' + txt);
           }
 
+          // leitura por stream (mantido)
           var reader = res.body && res.body.getReader ? res.body.getReader() : null;
           if (reader) {
             var contentLength = +res.headers.get('Content-Length') || 0;
@@ -214,7 +184,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
           setTimeout(function () {
             if (window.__pdfProgress) window.__pdfProgress.resetProgress();
-            setTimeout(function () { try { if (window.__pdfProgress && window.__pdfProgress.overlay) { /* overlay mantido */ } } catch (e) {} }, 600);
           }, 1200);
         } catch (err) {
           stopFakeProgress(fakeInterval);
@@ -240,14 +209,22 @@ document.addEventListener('DOMContentLoaded', function () {
     }, 420);
     return iv;
   }
-  function stopFakeProgress(iv) { try { clearInterval(iv); } catch (e) {} }
+
+  function stopFakeProgress(iv) {
+    try { clearInterval(iv); } catch (e) {}
+  }
+
   function downloadBlob(blob, filename) {
     var url = URL.createObjectURL(blob);
     var a = document.createElement('a');
-    a.href = url; a.download = filename || 'download.pdf';
-    document.body.appendChild(a); a.click(); a.remove();
+    a.href = url;
+    a.download = filename || 'download.pdf';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
     URL.revokeObjectURL(url);
   }
+
   function concatUint8Arrays(chunks) {
     if (!chunks || chunks.length === 0) return new Uint8Array();
     var total = chunks.reduce(function (sum, c) { return sum + (c.length || c.byteLength || 0); }, 0);
@@ -261,6 +238,7 @@ document.addEventListener('DOMContentLoaded', function () {
     return out;
   }
 
+  // Compat layer sobre a barra (mantém API update/reset usadas acima)
   if (window.__pdfProgress) {
     window.__pdfProgress.updateProgress = function (pct, subText) {
       pct = Math.max(0, Math.min(100, Math.round(pct)));
@@ -278,15 +256,9 @@ document.addEventListener('DOMContentLoaded', function () {
     };
   }
 
+  // --- Mantido o buildReportHTML original com CSS crítico ---
   function buildReportHTML() {
-    var criticalCSS = `:root{
-  --page-width:794px;
-  --accent:#0b63d6;
-  --muted:#5b6b78;
-  --card-bg:#ffffff;
-  --page-bg:#eef2f7;
-  --text:#04101a;
-}
+    var criticalCSS = `:root{ --page-width:794px; --accent:#0b63d6; --muted:#5b6b78; --card-bg:#ffffff; --page-bg:#eef2f7; --text:#04101a; }
 html,body{ margin:0;padding:0;background:var(--page-bg);font-family:Inter, Arial, sans-serif;color:var(--text); -webkit-print-color-adjust:exact; print-color-adjust:exact; }
 .pdf-wrap{ width:var(--page-width); max-width:100%; margin:20px auto; padding:20px; box-sizing:border-box; }
 .report-header{ display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:18px; }
@@ -322,8 +294,7 @@ img{ max-width:100%; height:auto; display:block; }
   .report-title { font-size:18px; }
   .item, .reco-box { padding:12px; border-radius:10px; margin-bottom:10px; }
   .reco-box .reco-item { flex-direction:column; gap:8px; padding:8px 0; }
-}
-`;
+}`;
 
     var resultNode = document.getElementById('result') || document.querySelector('.result');
     if (!resultNode) return '<!doctype html><html><body><p>Resultado não encontrado</p></body></html>';
@@ -341,8 +312,8 @@ img{ max-width:100%; height:auto; display:block; }
     function emphasizeWhyLines(htmlFragment) {
       try {
         var s = String(htmlFragment || '');
-        s = s.replace(/<(strong|b|em|span)[^>]*>\s*(Por\s*que\s*[:\-\—])\s*<\/\1>/ig, function(_, _tag, marker){ return marker; });
-        s = s.replace(/(Por\s*que\s*[:\-\—]\s*)([^<]+)/ig, function(_, marker, explanation){
+        s = s.replace(/<(strong|b|em|span)[^>]*>\s*(Por\s*que\s*[:\-—])\s*<\/\1>/ig, function(_, _tag, marker){ return marker; });
+        s = s.replace(/(Por\s*que\s*[:\-—]\s*)([^\<]+)/ig, function(_, marker, explanation){
           var markerClean = marker.trim();
           var explClean = explanation.replace(/\s+/g,' ').trim();
           return '<span class="why-line">' + markerClean + '</span>' + (explClean ? '<span class="explain">' + explClean + '</span>' : '');
@@ -350,14 +321,19 @@ img{ max-width:100%; height:auto; display:block; }
         return s;
       } catch (e) { return htmlFragment; }
     }
-    function safeEscapeHtml(s) { return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+    function safeEscapeHtml(s) {
+      return String(s || '').replace(/\&/g,'&amp;').replace(/\</g,'&lt;').replace(/\>/g,'&gt;');
+    }
+
     function detectStatusFromText(htmlFragment) {
       var txt = (new DOMParser().parseFromString('<div>' + htmlFragment + '</div>', 'text/html').body.innerText || '').trim();
-      if (/\—\s*(Não|Nao)\b|^\s*Não\b|^\s*Nao\b/i.test(txt)) return 'bad';
-      if (/\—\s*(Sim|Yes)\b|^\s*Sim\b/i.test(txt)) return 'ok';
+      if (/—\s*(Não|Nao)\b|^\s*Não\b|^\s*Nao\b/i.test(txt)) return 'bad';
+      if (/—\s*(Sim|Yes)\b|^\s*Sim\b/i.test(txt)) return 'ok';
       if (/Parcial|Parcialmente/i.test(txt)) return 'warn';
       return 'warn';
     }
+
     function badgeHtmlFor(status) {
       if (status === 'bad') return '<span class="item-badge bad"><span class="status-label status-no">Não</span></span>';
       if (status === 'ok') return '<span class="item-badge ok"><span class="status-label status-yes">Sim</span></span>';
@@ -384,14 +360,20 @@ img{ max-width:100%; height:auto; display:block; }
           return emphasizeWhyLines(el.outerHTML || '');
         }
       });
+
       recoEls.forEach(function (el) { if (el.parentNode) el.parentNode.removeChild(el); });
+
       var sepHtml = '<div class="sep-inline" aria-hidden="true"></div>';
-      var withSeps = rebuiltItems.map(function (item, idx) { return item + (idx < rebuiltItems.length - 1 ? sepHtml : ''); }).join('\n');
-      recoBoxHtml = ''
-        + '<div class="reco-box">'
-        + '<div class="reco-box-header"><div style="font-weight:900;font-size:15px;color:#04101a">Recomendações</div><div style="font-size:12px;color:var(--muted)">Itens: ' + rebuiltItems.length + '</div></div>'
-        + '<div class="reco-box-body">' + withSeps + '</div>'
-        + '</div>';
+      var withSeps = rebuiltItems.map(function (item, idx) {
+        return item + (idx < rebuiltItems.length - 1 ? sepHtml : '');
+      }).join('\n');
+
+      recoBoxHtml =
+        '' +
+        '<div class="reco-box">' +
+          '<div class="reco-box-header"><div style="font-weight:900;font-size:15px;color:#04101a">Recomendações</div><div style="font-size:12px;color:var(--muted)">Itens: ' + rebuiltItems.length + '</div></div>' +
+          '<div class="reco-box-body">' + withSeps + '</div>' +
+        '</div>';
     }
 
     var parts = [];
@@ -403,7 +385,9 @@ img{ max-width:100%; height:auto; display:block; }
       if (children.length > 0) children.forEach(function (ch) { parts.push(ch.outerHTML); });
       else {
         var ps = clone.querySelectorAll('p');
-        if (ps && ps.length > 0) Array.prototype.slice.call(ps).forEach(function (p) { if ((p.textContent || '').trim().length > 6) parts.push(p.outerHTML); });
+        if (ps && ps.length > 0) Array.prototype.slice.call(ps).forEach(function (p) {
+          if ((p.textContent || '').trim().length > 6) parts.push(p.outerHTML);
+        });
         else parts.push(clone.innerHTML || '');
       }
     }
@@ -416,18 +400,21 @@ img{ max-width:100%; height:auto; display:block; }
       var normalizedTitle = (title || '').replace(/\s+/g, ' ').trim();
       if (/conta adequada/i.test(normalizedTitle)) normalizedTitle = 'Conta adequada';
       if (/nome( de usuário| de usuario| de user)?/i.test(normalizedTitle)) normalizedTitle = 'Nome de usuário';
+
       var suggestionNode = doc.querySelector('.suggestion, .sugestao, .sugestão, .hint, .tip') || null;
       var suggestionHtml = suggestionNode ? suggestionNode.innerHTML : ((doc.body.innerHTML.match(/(Sugest(?:ão|ao)\s*[:\-]\s*([\s\S]*))/i) || [])[2] || '');
+
       var descHtml = emphasizeWhyLines(pHtml);
       var status = detectStatusFromText(pHtml);
       var badge = badgeHtmlFor(status);
       var headerBadgeHtml = badge ? '<div>' + badge + '</div>' : '';
-      return ''
-        + '<div class="item">'
-        + '<div class="item-header"><div class="item-title">' + safeEscapeHtml(normalizedTitle || 'Item') + '</div>' + headerBadgeHtml + '</div>'
-        + '<div class="item-desc">' + descHtml + '</div>'
-        + (suggestionHtml ? '<div class="item-suggestion">' + suggestionHtml + '</div>' : '')
-        + '</div>';
+
+      return '' +
+        '<div class="item">' +
+          '<div class="item-header"><div class="item-title">' + safeEscapeHtml(normalizedTitle || 'Item') + '</div>' + headerBadgeHtml + '</div>' +
+          '<div class="item-desc">' + descHtml + '</div>' +
+          (suggestionHtml ? '<div class="item-suggestion">' + suggestionHtml + '</div>' : '') +
+        '</div>';
     }).join('\n');
 
     var itemsHtml = '';
@@ -435,23 +422,26 @@ img{ max-width:100%; height:auto; display:block; }
     itemsHtml += otherHtml;
 
     var head = '<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Relatório</title><style>' + criticalCSS + '</style>';
-    var headerHtml = ''
-      + '<div class="report-header">'
-      +   '<div><div class="report-title">Diagnóstico pronto</div><div class="report-sub">Relatório automático</div></div>'
-      +   '<div class="summary-row"><div class="priority-badge">Prioridade: Alta</div><div style="font-size:12px;color:var(--muted);margin-top:6px">' + new Date().toLocaleDateString('pt-BR') + '</div></div>'
-      + '</div>';
 
-    var body = ''
-      + '<div class="pdf-wrap">'
-      +   '<div class="pdf-sheet-bleed">'
-      +     '<div class="report-sheet">'
-      +       head
-      +       headerHtml
-      +       '<div class="items">' + itemsHtml + '</div>'
-      +       '<div class="report-footer">Relatório gerado • ' + (new Date()).toLocaleDateString('pt-BR') + '</div>'
-      +     '</div>'
-      +   '</div>'
-      + '</div>';
+    var headerHtml =
+      '' +
+      '<div class="report-header">' +
+        '<div><div class="report-title">Diagnóstico pronto</div><div class="report-sub">Relatório automático</div></div>' +
+        '<div class="summary-row"><div class="priority-badge">Prioridade: Alta</div><div style="font-size:12px;color:var(--muted);margin-top:6px">' + new Date().toLocaleDateString('pt-BR') + '</div></div>' +
+      '</div>';
+
+    var body =
+      '' +
+      '<div class="pdf-wrap">' +
+        '<div class="pdf-sheet-bleed">' +
+          '<div class="report-sheet">' +
+            head +
+            headerHtml +
+            '<div class="items">' + itemsHtml + '</div>' +
+            '<div class="report-footer">Relatório gerado • ' + (new Date()).toLocaleDateString('pt-BR') + '</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
 
     return '<!doctype html><html lang="pt-BR"><head>' + head + '</head><body>' + body + '</body></html>';
   }
