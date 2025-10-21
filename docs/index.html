@@ -6,12 +6,8 @@
   <title>Questionário Estratégico Instagram</title>
   <link rel="stylesheet" href="styles.css" />
 
-  <!-- Dependências para geração de PDF -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
-
-  <!-- Script da aplicação (app.js) -->
   <script src="app.js" defer></script>
+	<script src="print.js" defer></script>
 </head>
 <body>
   <div class="container">
@@ -39,7 +35,8 @@
             <button id="calc" class="btn primary">Gerar diagnóstico</button>
             <button id="reset" class="btn ghost">Limpar</button>
             <button id="downloadPdf" class="btn" disabled>Gerar PDF</button>
-          </div>
+		          </div>
+			
         </div>
       </div>
     </main>
@@ -71,6 +68,6 @@
       </div>
     </aside>
   </div>
-  
+ 
 </body>
 </html>

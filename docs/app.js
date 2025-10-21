@@ -756,82 +756,9 @@ document.addEventListener('DOMContentLoaded', function () {
       if (scoreEl) scoreEl.classList.remove('good', 'mid', 'poor');
     });
 
-    // Geração de PDF (usa html2canvas + jspdf)
-    pdfBtn.addEventListener('click', function () {
-      if (!pdfBtn) return;
-      pdfBtn.disabled = true;
-      var originalText = pdfBtn.textContent;
-      pdfBtn.textContent = 'Gerando PDF...';
-      try {
-        var titleEl = document.querySelector('.header-text h1');
-        var title = titleEl ? titleEl.textContent : 'Relatório';
-        var comp = compute();
-        var simCount = comp.simCount;
-        var items = comp.items || [];
-        var total = items.length;
-        var score = total ? Math.round((simCount / total) * 100) : 0;
-
-        var pdfDiv = document.createElement('div');
-        pdfDiv.style.width = '800px';
-        pdfDiv.style.padding = '24px';
-        pdfDiv.style.background = '#fff';
-        pdfDiv.style.color = '#111';
-        pdfDiv.style.fontFamily = 'Arial, Helvetica, sans-serif';
-        pdfDiv.innerHTML = '<h1 style="margin:0 0 8px">' + title + '</h1>' +
-                           '<p style="margin:0 0 10px">Pontuação: <strong>' + score + '</strong> — ' +
-                           (score >= 80 ? 'Estratégico' : score >= 50 ? 'Bom potencial' : 'Reconstruir base') + '</p>' +
-                           '<p style="margin:0 0 12px">Sim: ' + simCount + ' de ' + total + '</p><hr style="margin:12px 0">';
-
-        for (var p = 0; p < items.length; p++) {
-          var itx = items[p];
-          if (itx.val === 2) {
-            pdfDiv.innerHTML += '<div style="padding:10px;border-radius:8px;border:1px solid #e6f4ea;margin-bottom:10px;background:#f6fffa"><strong>' + itx.label + '</strong> — <em>OK</em></div>';
-          } else {
-            var s = suggestions[itx.key] ? suggestions[itx.key].sug : '';
-            var w = suggestions[itx.key] ? suggestions[itx.key].why : '';
-            pdfDiv.innerHTML += '<div style="padding:10px;border-radius:8px;border:1px solid #eee;margin-bottom:10px;background:#fafafa"><strong>' + itx.label + '</strong> — <em>' + (itx.val === 1 ? 'Parcial' : 'Não') + '</em><div style="margin-top:6px"><strong>Sugestão:</strong> ' + (s || '') + '</div><div style="margin-top:6px;color:#444"><strong>Por que:</strong> ' + (w || '') + '</div></div>';
-          }
-        }
-
-        document.body.appendChild(pdfDiv);
-
-        if (typeof html2canvas !== 'function') throw new Error('html2canvas não disponível.');
-
-        html2canvas(pdfDiv, { scale: 2, backgroundColor: '#ffffff' }).then(function (canvas) {
-          try {
-            var imgData = canvas.toDataURL('image/jpeg', 0.95);
-            var jsPDFobj = window.jspdf && window.jspdf.jsPDF ? window.jspdf.jsPDF : window.jspdf;
-            var pdf = new jsPDFobj({ orientation: 'portrait', unit: 'px', format: [canvas.width, canvas.height] });
-            pdf.addImage(imgData, 'JPEG', 0, 0, canvas.width, canvas.height);
-            var filename = 'questionario-instagram-' + new Date().toISOString().slice(0,10) + '.pdf';
-            pdf.save(filename);
-          } catch (errPdf) {
-            console.error('Erro ao gerar PDF:', errPdf);
-            alert('Erro ao gerar PDF: ' + (errPdf && errPdf.message ? errPdf.message : 'ver console'));
-          } finally {
-            if (pdfDiv && pdfDiv.parentNode) document.body.removeChild(pdfDiv);
-            pdfBtn.disabled = false;
-            pdfBtn.textContent = originalText;
-          }
-        }).catch(function (errCanvas) {
-          console.error('Erro html2canvas:', errCanvas);
-          if (pdfDiv && pdfDiv.parentNode) document.body.removeChild(pdfDiv);
-          pdfBtn.disabled = false;
-          pdfBtn.textContent = originalText;
-          alert('Erro ao capturar conteúdo para PDF. Veja console.');
-        });
-      } catch (errOuter) {
-        console.error('Erro ao preparar PDF:', errOuter);
-        pdfBtn.disabled = false;
-        pdfBtn.textContent = originalText;
-        alert('Erro ao preparar PDF: ' + (errOuter && errOuter.message ? errOuter.message : 'ver console'));
-      }
-    });
-
-    if (pdfBtn) pdfBtn.disabled = true;
-
-  } catch (err) {
+     } catch (err) {
     console.error('Erro inicializando app.js:', err);
     alert('Erro ao inicializar o questionário. Veja o console.');
   }
+	
 });
